@@ -10,7 +10,7 @@ end box
 participant backend #Tomato
 participant kratos #Yellow/Gray
 participant mesibo #Orange/Gray
-
+note for fucking idiot
 user -> app: open login form
 user -> app: open tg-"link"
 app -> chatbot: go to chatbot
