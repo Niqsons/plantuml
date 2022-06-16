@@ -1,0 +1,59 @@
+@startuml clique auth
+
+autonumber
+box frontend
+actor user #Green/Yellow
+entity app #DeepSkyBlue
+entity chatbot #CadetBlue
+
+end box
+participant backend #Tomato
+participant kratos #Yellow/Gray
+participant mesibo #Orange/Gray
+
+user -> app: open login form
+user -> app: open tg-"link"
+app -> chatbot: go to chatbot
+user -> chatbot: input startd
+
+chatbot -> backend: check t.me/@username
+alt username in list not-activated
+    chatbot <-- backend: return OTP
+else
+    chatbot <-- backend: username exist
+end
+group OTP
+    user -> app: input OTP
+    app -> backend: verify OTP
+    alt OTP is correct
+        backend -> kratos: set  base role & make user
+    else OTP is not correct
+        app <-- backend: OTP invalid
+        user <-- app: otp invalid
+        user -> app: repeat get OTP
+    end
+end
+
+backend <-- kratos: user created
+backend -> kratos: get token
+backend <-- kratos: auth-token+base role
+note left: role for update password
+app <-- backend: auth-token
+
+user -> app: input password
+app -> app: validate password
+alt password correct
+    app -> backend: send password+auth token
+    note right: backend validate password too
+else wrong password
+    user <-- app: password in not correct
+end
+backend -> kratos: set client role
+backend <-- kratos: response 200
+backend -> mesibo: create user
+backend <-- mesibo: response 200
+backend -> backend: "activate" user
+app <-- backend: auth token+client role
+app -> app: login
+user -> user: user is happy
+@enduml
